@@ -1,0 +1,16 @@
+[theme]
+# Força o modo escuro como padrão
+base="dark"
+
+# Cor Dourada Premium para componentes nativos do Streamlit
+primaryColor="#D4AF37"
+
+# Fundo preto absoluto (combina com o nosso CSS)
+backgroundColor="#0d0d0d"
+
+# Fundo secundário (para caixas laterais e componentes isolados)
+secondaryBackgroundColor="#1a1a1a"
+
+# Cor do texto padrão (Cinza claro/Branco para leitura confortável)
+textColor="#E5E4E2"
+font="sans serif"
