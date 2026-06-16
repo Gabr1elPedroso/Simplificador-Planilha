@@ -3,6 +3,36 @@ import pandas as pd
 import re
 import io
 
+# --- LÓGICA DE LOGIN ---
+def check_password():
+    """Retorna True se a senha estiver correta."""
+    if "password_correct" not in st.session_state:
+        st.session_state.password_correct = False
+
+    if not st.session_state.password_correct:
+        # Mostra o formulário de login
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            st.markdown("<h2 style='text-align: center; color: #D4AF37;'>🔐 Acesso Restrito</h2>", unsafe_allow_html=True)
+            user = st.text_input("Usuário")
+            password = st.text_input("Senha", type="password")
+            if st.button("Entrar"):
+                # Verifica se o usuário existe nos segredos e se a senha confere
+                if user in st.secrets["passwords"] and st.secrets["passwords"][user] == password:
+                    st.session_state.password_correct = True
+                    st.rerun()
+                else:
+                    st.error("Usuário ou senha incorretos.")
+        return False
+    return True
+
+# --- INÍCIO DA APLICAÇÃO ---
+if not check_password():
+    st.stop() # Para a execução aqui se não estiver logado
+
+# Se chegou aqui, o usuário está logado! 
+# Pode colar aqui o resto do seu código (CSS, Processamento, Interface)...
+
 # --- CONFIGURAÇÃO DA PÁGINA E ESTILIZAÇÃO VISUAL PREMIUM ---
 st.set_page_config(page_title="Gerador de Planilha", page_icon="✨", layout="centered")
 
