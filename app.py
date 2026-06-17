@@ -3,35 +3,27 @@ import pandas as pd
 import re
 import io
 
-# --- LÓGICA DE LOGIN ---
+# --- FUNÇÃO DE VERIFICAÇÃO DE LOGIN ---
 def check_password():
-    """Retorna True se a senha estiver correta."""
     if "password_correct" not in st.session_state:
         st.session_state.password_correct = False
 
     if not st.session_state.password_correct:
-        # Mostra o formulário de login
+        st.markdown("<h1 style='text-align: center; color: #D4AF37;'>🔐 Acesso Restrito</h1>", unsafe_allow_html=True)
+        
         col1, col2, col3 = st.columns([1,2,1])
         with col2:
-            st.markdown("<h2 style='text-align: center; color: #D4AF37;'>🔐 Acesso Restrito</h2>", unsafe_allow_html=True)
-            user = st.text_input("Usuário")
-            password = st.text_input("Senha", type="password")
-            if st.button("Entrar"):
-                # Verifica se o usuário existe nos segredos e se a senha confere
-                if user in st.secrets["passwords"] and st.secrets["passwords"][user] == password:
+            user = st.text_input("Utilizador")
+            password = st.text_input("Palavra-passe", type="password")
+            
+            if st.button("Entrar", use_container_width=True):
+                if "passwords" in st.secrets and user in st.secrets["passwords"] and st.secrets["passwords"][user] == password:
                     st.session_state.password_correct = True
                     st.rerun()
                 else:
-                    st.error("Usuário ou senha incorretos.")
+                    st.error("Utilizador ou palavra-passe incorretos.")
         return False
     return True
-
-# --- INÍCIO DA APLICAÇÃO ---
-if not check_password():
-    st.stop() # Para a execução aqui se não estiver logado
-
-# Se chegou aqui, o usuário está logado! 
-# Pode colar aqui o resto do seu código (CSS, Processamento, Interface)...
 
 # --- CONFIGURAÇÃO DA PÁGINA E ESTILIZAÇÃO VISUAL PREMIUM ---
 st.set_page_config(page_title="Gerador de Planilha", page_icon="✨", layout="centered")
@@ -40,117 +32,84 @@ css_personalizado = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
 
-    /* Fundo da tela inteira */
-    .stApp {
-        background-color: #0d0d0d;
-        font-family: 'Montserrat', sans-serif;
-    }
-    
-    /* Fontes globais */
-    html, body, [class*="css"] {
-        font-family: 'Montserrat', sans-serif !important;
-    }
+    .stApp { background-color: #0d0d0d; font-family: 'Montserrat', sans-serif; }
+    html, body, [class*="css"] { font-family: 'Montserrat', sans-serif !important; }
 
-    /* Título com Gradiente Dourado */
     .titulo-premium {
         background: linear-gradient(45deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 700;
-        font-size: 2.8rem;
-        text-align: center;
-        margin-bottom: 10px;
+        font-weight: 700; font-size: 2.8rem; text-align: center; margin-bottom: 10px;
     }
-    
-    .subtitulo {
-        text-align: center;
-        color: #A0A0A0;
-        font-weight: 300;
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-    }
+    .subtitulo { text-align: center; color: #A0A0A0; font-weight: 300; font-size: 1.1rem; margin-bottom: 30px; }
 
-    /* Textos em geral */
-    p, span, label, div, li {
-        color: #E5E4E2 !important;
-    }
+    p, span, label, div, li { color: #E5E4E2 !important; }
 
-    /* Área de Upload de Arquivos (Glassmorphism) */
     [data-testid="stFileUploadDropzone"] {
-        background: rgba(26, 26, 26, 0.6);
-        border: 2px dashed rgba(212, 175, 55, 0.4);
-        border-radius: 15px;
-        backdrop-filter: blur(5px);
-        transition: all 0.3s ease;
+        background: rgba(26, 26, 26, 0.6); border: 2px dashed rgba(212, 175, 55, 0.4);
+        border-radius: 15px; backdrop-filter: blur(5px); transition: all 0.3s ease;
     }
     [data-testid="stFileUploadDropzone"]:hover {
-        border-color: #FFDF00;
-        background: rgba(36, 36, 36, 0.9);
+        border-color: #FFDF00; background: rgba(36, 36, 36, 0.9);
         box-shadow: 0px 0px 20px rgba(212, 175, 55, 0.15);
     }
 
-    /* Botão Principal de Processar */
-    div.stButton > button {
-        background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
-        color: #D4AF37 !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
-        letter-spacing: 1px;
+    /* Estilização da caixa de filtro (TextArea) */
+    [data-testid="stTextArea"] textarea {
+        background-color: #1a1a1a !important;
+        color: #FFDF00 !important;
         border: 1px solid #D4AF37 !important;
         border-radius: 10px !important;
-        padding: 20px !important;
-        transition: all 0.4s ease;
+        font-size: 15px !important;
+        padding: 15px !important;
+    }
+    [data-testid="stTextArea"] textarea:focus {
+        border-color: #FFDF00 !important;
+        box-shadow: 0px 0px 10px rgba(212, 175, 55, 0.4) !important;
+        outline: none !important;
+    }
+
+    div.stButton > button {
+        background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+        color: #D4AF37 !important; font-weight: 600 !important; font-size: 16px !important;
+        letter-spacing: 1px; border: 1px solid #D4AF37 !important; border-radius: 10px !important;
+        padding: 20px !important; transition: all 0.4s ease;
     }
     div.stButton > button:hover {
         background: linear-gradient(135deg, #D4AF37 0%, #AA771C 100%) !important;
-        color: #0d0d0d !important;
-        box-shadow: 0px 10px 20px rgba(212, 175, 55, 0.4) !important;
-        border: 1px solid transparent !important;
-        transform: translateY(-2px);
+        color: #0d0d0d !important; box-shadow: 0px 10px 20px rgba(212, 175, 55, 0.4) !important;
+        border: 1px solid transparent !important; transform: translateY(-2px);
     }
 
-    /* Botão de Download */
     div.stDownloadButton > button {
         background: linear-gradient(135deg, #D4AF37 0%, #AA771C 100%) !important;
-        color: #0d0d0d !important;
-        font-weight: 700 !important;
-        font-size: 16px !important;
-        border: none !important;
-        border-radius: 10px !important;
-        padding: 20px !important;
-        box-shadow: 0px 5px 15px rgba(212, 175, 55, 0.3) !important;
-        transition: all 0.3s ease;
+        color: #0d0d0d !important; font-weight: 700 !important; font-size: 16px !important;
+        border: none !important; border-radius: 10px !important; padding: 20px !important;
+        box-shadow: 0px 5px 15px rgba(212, 175, 55, 0.3) !important; transition: all 0.3s ease;
     }
     div.stDownloadButton > button:hover {
         background: linear-gradient(135deg, #FFDF00 0%, #D4AF37 100%) !important;
-        color: #000000 !important;
-        transform: translateY(-3px);
+        color: #000000 !important; transform: translateY(-3px);
         box-shadow: 0px 8px 20px rgba(212, 175, 55, 0.5) !important;
     }
     
-    /* Expander e Caixas de Alerta/Sucesso forçadas para Preto e Dourado */
     [data-testid="stExpander"], [data-testid="stAlert"] {
-        background: rgba(26, 26, 26, 0.8) !important;
-        border: 1px solid #D4AF37 !important;
-        border-radius: 10px !important;
+        background: rgba(26, 26, 26, 0.8) !important; border: 1px solid #D4AF37 !important; border-radius: 10px !important;
     }
     [data-testid="stAlert"] p, [data-testid="stAlert"] span, [data-testid="stAlert"] div {
-        color: #FFDF00 !important;
-        font-weight: 600;
+        color: #FFDF00 !important; font-weight: 600;
     }
-    [data-testid="stAlert"] svg {
-        fill: #FFDF00 !important;
-    }
-    
-    /* Separador Dourado */
-    hr {
-        border-top: 1px solid rgba(212, 175, 55, 0.2);
-    }
+    [data-testid="stAlert"] svg { fill: #FFDF00 !important; }
+    hr { border-top: 1px dashed rgba(212, 175, 55, 0.3); }
 </style>
 """
 st.markdown(css_personalizado, unsafe_allow_html=True)
 
-# --- FUNÇÕES DE PROCESSAMENTO (NÚCLEO INTACTO) ---
+# BLOQUEIO DE ACESSO
+if not check_password():
+    st.stop()
+
+# --- FUNÇÕES DE PROCESSAMENTO ---
 def ler_aba_inteligente(xls, nome_aba):
     df_bruto = pd.read_excel(xls, sheet_name=nome_aba, header=None)
     linha_cabecalho = 0
@@ -174,7 +133,7 @@ def buscar_coluna_valor(colunas, palavras_chave, ignorar=[]):
                 return col
     return colunas[-1]
 
-def processar_planilhas(arquivo_carregado):
+def processar_planilhas(arquivo_carregado, lista_matriculas=None):
     xls = pd.ExcelFile(arquivo_carregado)
     
     mapa_abas = {}
@@ -200,26 +159,26 @@ def processar_planilhas(arquivo_carregado):
         
     df_funcionarios = pd.concat(bases_principais, ignore_index=True)
     df_funcionarios = df_funcionarios.drop_duplicates(subset=['Matrícula'])
-    df_funcionarios['Matrícula'] = df_funcionarios['Matrícula'].astype(str)
+    df_funcionarios['Matrícula'] = df_funcionarios['Matrícula'].astype(str).str.strip()
     
     df_res = df_funcionarios.copy()
 
     if 'experiencia' in mapa_abas:
         df_experiencia = ler_aba_inteligente(xls, mapa_abas['experiencia'])
-        df_experiencia['Matrícula'] = df_experiencia['Matrícula'].astype(str)
+        df_experiencia['Matrícula'] = df_experiencia['Matrícula'].astype(str).str.strip()
         df_exp_clean = df_experiencia[['Matrícula', 'Data Fim Experiência', 'Data Fim Experiência/Renovação']].drop_duplicates(subset=['Matrícula'])
         df_res = pd.merge(df_res, df_exp_clean, on='Matrícula', how='left')
     
     if 'fgts' in mapa_abas:
         df_fgts = ler_aba_inteligente(xls, mapa_abas['fgts'])
-        df_fgts['Matrícula'] = df_fgts['Matrícula'].astype(str)
+        df_fgts['Matrícula'] = df_fgts['Matrícula'].astype(str).str.strip()
         col_valor_fgts = buscar_coluna_valor(df_fgts.columns, ['valor', 'soma', 'fgts'])
         df_fgts_clean = df_fgts[['Matrícula', col_valor_fgts]].rename(columns={col_valor_fgts: 'FGTS Folha'})
         df_res = pd.merge(df_res, df_fgts_clean, on='Matrícula', how='left')
 
     if 'adipar' in mapa_abas:
         df_adipar = ler_aba_inteligente(xls, mapa_abas['adipar'])
-        df_adipar['Matrícula'] = df_adipar['Matrícula'].astype(str)
+        df_adipar['Matrícula'] = df_adipar['Matrícula'].astype(str).str.strip()
         col_valor_adipar = buscar_coluna_valor(df_adipar.columns, ['valor', 'soma', 'adipar'])
         df_adipar_clean = df_adipar[['Matrícula', col_valor_adipar]].rename(columns={col_valor_adipar: 'Adipar'})
         df_res = pd.merge(df_res, df_adipar_clean, on='Matrícula', how='left')
@@ -227,14 +186,14 @@ def processar_planilhas(arquivo_carregado):
     if 'consignado' in mapa_abas:
         df_consignado = ler_aba_inteligente(xls, mapa_abas['consignado'])
         col_mat_consignado = 'matricula' if 'matricula' in df_consignado.columns else 'Matrícula'
-        df_consignado[col_mat_consignado] = df_consignado[col_mat_consignado].astype(str)
+        df_consignado[col_mat_consignado] = df_consignado[col_mat_consignado].astype(str).str.strip()
         col_valor_consignado = buscar_coluna_valor(df_consignado.columns, ['valor', 'soma', 'parcela'])
         df_consignado_clean = df_consignado[[col_mat_consignado, col_valor_consignado]].rename(columns={col_mat_consignado: 'Matrícula', col_valor_consignado: 'eConsignado'})
         df_res = pd.merge(df_res, df_consignado_clean, on='Matrícula', how='left')
 
     if 'pensao' in mapa_abas:
         df_pensao = ler_aba_inteligente(xls, mapa_abas['pensao'])
-        df_pensao['Matrícula'] = df_pensao['Matrícula'].astype(str)
+        df_pensao['Matrícula'] = df_pensao['Matrícula'].astype(str).str.strip()
         col_valor_pensao = buscar_coluna_valor(df_pensao.columns, ['base de', 'cálculo', 'calculo', 'valor'])
         df_pensao_clean = df_pensao[['Matrícula', col_valor_pensao]].rename(columns={col_valor_pensao: 'Pensão'}).drop_duplicates(subset=['Matrícula'])
         df_res = pd.merge(df_res, df_pensao_clean, on='Matrícula', how='left')
@@ -356,6 +315,14 @@ def processar_planilhas(arquivo_carregado):
         'PONTO LIBERADO\nDIA E HORA', 'BENEFÍCIOS', 'HOMOLOGAÇÃO DATA:', 'HOMOLOGAÇÃO STATUS:'
     ]
     
+    # --- APLICAÇÃO DO FILTRO DE MATRÍCULAS ---
+    if lista_matriculas:
+        layout_final['Matrícula'] = layout_final['Matrícula'].astype(str).str.strip()
+        layout_final = layout_final[layout_final['Matrícula'].isin(lista_matriculas)]
+        
+        if layout_final.empty:
+            raise ValueError("Nenhum funcionário encontrado com as matrículas informadas.")
+            
     layout_final = layout_final.fillna("")
 
     output = io.BytesIO()
@@ -370,29 +337,56 @@ st.markdown('<p class="subtitulo">Consolidador inteligente de relatórios e layo
 
 with st.expander("📌 Como utilizar a ferramenta", expanded=False):
     st.write("""
-    1. Exporte a planilha gerada contendo todas as abas (Ativos, Cessão, Demitidos, etc).
-    2. Faça o upload do arquivo com a extensão `.xlsx` na área abaixo.
-    3. Clique em **Processar Dados** e aguarde o sistema cruzar todas as chaves (Matrículas).
-    4. Faça o download do layout final padronizado com as **62 colunas** necessárias.
+    1. Faça o upload do ficheiro Excel com a base bruta.
+    2. (Opcional) Cole a lista de Matrículas no campo de filtro abaixo para exportar apenas essas pessoas.
+    3. Clique em **Processar Dados** para gerar o layout unificado com as 62 colunas.
     """)
 
 st.divider()
 
-arquivo_carregado = st.file_uploader("📂 Arraste ou selecione o arquivo Excel (.xlsx)", type=["xlsx"])
+# Upload do Arquivo SEMPRE visível
+arquivo_carregado = st.file_uploader("📂 Arraste ou selecione o ficheiro Excel (.xlsx)", type=["xlsx"])
 
+# Linha divisória e Filtro SEMPRE visíveis
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #D4AF37; font-size: 1.5rem; text-align: center; margin-bottom: 5px;'>🔍 Filtro Específico (Opcional)</h3>", unsafe_allow_html=True)
+
+# A caixa de texto (sem label do Streamlit, pois já temos o título em HTML acima)
+matriculas_input = st.text_area(
+    "Filtro oculto", 
+    label_visibility="collapsed",
+    placeholder="Cole a lista de matrículas aqui (uma por linha ou separadas por vírgula).\n\n⚠️ Deixe em branco se desejar processar TODOS os funcionários.",
+    height=130
+)
+
+# O botão de processar só aparece (ou só executa) se houver um ficheiro
 if arquivo_carregado is not None:
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🚀 PROCESSAR DADOS E GERAR LAYOUT", use_container_width=True):
         
-        with st.status("⚙️ Analisando abas e cruzando informações...", expanded=True) as status:
+        lista_matriculas = []
+        if matriculas_input.strip():
+            raw_list = re.split(r'[,\n;\s]+', matriculas_input)
+            lista_matriculas = [m.strip() for m in raw_list if m.strip()]
+            
+        with st.status("⚙️ A analisar abas e a cruzar informações...", expanded=True) as status:
             try:
-                st.write("Lendo abas principais...")
-                st.write("Mapeando cruzamentos de FGTS, Adipar, Consignado e Pensão...")
-                dados_excel = processar_planilhas(arquivo_carregado)
-                st.write("Formatando 62 colunas do layout de saída...")
+                if lista_matriculas:
+                    st.write(f"A aplicar filtro para {len(lista_matriculas)} matrícula(s)...")
+                else:
+                    st.write("A ler a base completa de funcionários...")
+                    
+                st.write("A mapear os cruzamentos de FGTS, Adipar, Consignado e Pensão...")
+                
+                dados_excel = processar_planilhas(arquivo_carregado, lista_matriculas)
+                
+                st.write("A formatar as 62 colunas do layout de saída...")
                 status.update(label="Processamento concluído com sucesso!", state="complete", expanded=False)
                 
-                st.success("Tudo pronto! Seu layout de 62 colunas foi gerado com perfeição.")
+                if lista_matriculas:
+                    st.success("Layout filtrado gerado na perfeição!")
+                else:
+                    st.success("Tudo pronto! O layout completo de 62 colunas foi gerado na perfeição.")
                 
                 st.download_button(
                     label="📥 BAIXAR PLANILHA CONSOLIDADA",
@@ -401,6 +395,9 @@ if arquivo_carregado is not None:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
+            except ValueError as ve:
+                status.update(label="Aviso", state="error", expanded=True)
+                st.warning(str(ve))
             except Exception as e:
                 status.update(label="Erro durante o processamento.", state="error", expanded=True)
                 st.error(f"Detalhes do erro: {str(e)}")
